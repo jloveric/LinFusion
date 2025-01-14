@@ -5,6 +5,7 @@ import functools
 from .attention import GeneralizedLinearAttention
 
 
+# This block was used in the original version of this code
 model_dict = {
     "runwayml/stable-diffusion-v1-5": "Yuanshi/LinFusion-1-5",
     "SG161222/Realistic_Vision_V4.0_noVAE": "Yuanshi/LinFusion-1-5",
@@ -13,6 +14,12 @@ model_dict = {
     "stabilityai/stable-diffusion-xl-base-1.0": "Yuanshi/LinFusion-XL",
 }
 
+# but we've modified it to this
+base_model_dict = {
+    "sd1.5": "Yuanshi/LinFusion-1-5",
+    "sd2.1": "Yuanshi/LinFusion-2-1",
+    "sdxl": "Yuanshi/LinFusion-XL",
+}
 
 def replace_submodule(model, module_name, new_submodule):
     path, attr = module_name.rsplit(".", 1)
@@ -81,6 +88,7 @@ class LinFusion(ModelMixin, ConfigMixin):
     ) -> "LinFusion":
         """
         Construct a LinFusion object for the given pipeline.
+        :pipe_name_path: sd1.5, sd2.1, sdxl is the base model of the checkpoint
         """
         assert unet is not None or pipeline.unet is not None
         unet = unet or pipeline.unet
@@ -88,7 +96,7 @@ class LinFusion(ModelMixin, ConfigMixin):
             # Load from pretrained
             if not pretrained_model_name_or_path:
                 pipe_name_path = pipe_name_path or pipeline._internal_dict._name_or_path
-                pretrained_model_name_or_path = model_dict.get(pipe_name_path, None)
+                pretrained_model_name_or_path = base_model_dict.get(pipe_name_path, None)
                 if pretrained_model_name_or_path:
                     print(
                         f"Matching LinFusion '{pretrained_model_name_or_path}' for pipeline '{pipe_name_path}'."
